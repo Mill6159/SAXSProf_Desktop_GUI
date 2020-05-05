@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../SAXSProf_Desktop_GUI/.idea/Desktop_GUI.iml" filepath="$PROJECT_DIR$/../SAXSProf_Desktop_GUI/.idea/Desktop_GUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../SAXSProf_Desktop_GUI/.idea/SAXSProf_Desktop_GUI.iml" filepath="$PROJECT_DIR$/../SAXSProf_Desktop_GUI/.idea/SAXSProf_Desktop_GUI.iml" />
     </modules>
   </component>
 </project>

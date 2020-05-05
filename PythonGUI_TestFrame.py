@@ -46,6 +46,11 @@ def do_it():
 	print("The window material: " + str(window_type))
 	print("The sensor-thickness (cm): " + str(sensor_thickness))
 
+# from tkinter.messagebox import *
+# def do_it():
+# 	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()))
+# 	blank.insert(0, energy)
+# blank = Entry(root)
 
 # Build Buttons:
 Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 5, bg = 'lightblue', command =do_it).place(x=320, y=450)
@@ -224,4 +229,5 @@ def err_calcs():
 Error_Calcs = Button(root, text="Error Calculations", width = 30, height = 5, bg = 'lightblue', command =err_calcs).place(x=320, y=590)
 
 
+Button(root,text='Quit',command=root.destroy).place(x=20, y=590)
 root.mainloop()
