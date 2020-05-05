@@ -1,7 +1,11 @@
 ####################################
 import numpy as np
 from SAXS8 import *
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
+import numpy as np
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 import warnings
 from tkinter import *
 from SAXSProf_ErrCalcs import *
@@ -46,13 +50,12 @@ def sim_params(energy = 14.14, P = 3.8e12, snaps = 1, a = 150.47,
 
 # Building outputs
 
-
 def sim_param_list():
 	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
 	paramList = [str(energy), str(conc.get()), str(MWt.get()),str(P), str(snaps), str(a), str(d), str(window_type), str(sensor_thickness), str(t)]
 	paramNameList = ['Energy (keV): ', 'Conc. (mg/ml) of Sample: ', 'MWt(kDa) of Sample: ','Flux (photons/second): ', 'Snaps: ', 'Sample-Detector Distance (cm): ',
 					 'Sample Cell Length (cm): ', 'Window Type: ', 'Sensor Thickness (cm): ', 'Exposure Time (s): ']
-	top_window = Toplevel(root)
+	top_window = Toplevel(root, bg = '#898585')
 	for ind, paramNameList in enumerate(paramNameList):
 		# print names in the tkinter window
 		# create a label widget in top_window
@@ -62,7 +65,7 @@ def sim_param_list():
 		names_label.grid(row=int(ind) + 1, column=0)
 		# values_label.grid(row=int(ind) + 1, column=1)
 		# print the fruit name in the label
-		names_label.config(text=paramNameList, font = ('helvetica', 20, 'bold'))
+		names_label.config(text=paramNameList, font = ('helvetica', 20, 'bold'), bg = '#898585')
 		# values_label.config(text=paramList)
 	for ind, paramList in enumerate(paramList):
 		# print names in the tkinter window
@@ -71,7 +74,7 @@ def sim_param_list():
 		# give it a position using grid
 		values_label.grid(row=int(ind) + 1, column=1)
 		# print the fruit name in the label
-		values_label.config(text=paramList, font = ('helvetica', 20))
+		values_label.config(text=paramList, font = ('helvetica', 20), bg = '#898585')
 
 # Build Buttons:
 Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 2, bg = 'lightblue', command = sim_param_list).place(x=320, y=430)
@@ -83,7 +86,7 @@ def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
         plt.rc("axes", linewidth=2)
         plt.rc("lines", markeredgewidth=2)
         plt.rc('font', **{"sans-serif": ["Helvetica"]})
-        fig = plt.figure(figsize=(8, 8))
+        fig = plt.Figure(figsize=(8, 8))
         ax1 = fig.add_subplot(1, 1, 1)
         for tick in ax1.xaxis.get_major_ticks():
             tick.label1.set_fontsize(20)
@@ -97,7 +100,6 @@ def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
         plt.legend(numpoints=1, fontsize=18, loc="best")
         plt.savefig(savelabel + ".png", format='png',
                     bbox_inches = 'tight')
-        plt.show()
 
 
 def gen_simulation():
@@ -133,12 +135,35 @@ def gen_simulation():
     # I_no_noise = saxs1.t * saxs1.pixel_size ** 2 * I_no_noise
 
 	I = saxs1.I_of_q(saxs1.c, saxs1.mw, saxs1.buf_model_q)
-	plot_S1(saxs1.buf_model_q, I, plotlabel='Ambient Pressure', savelabel = 'Intensity_LinLin', xlabel = '$q (\\AA^{-1})$', ylabel = 'I(q)')
+	# plot_S1(saxs1.buf_model_q, I, plotlabel='Ambient Pressure', savelabel = 'Intensity_LinLin', xlabel = '$q (\\AA^{-1})$', ylabel = 'I(q)')
+	plotlabel = 'Simulated SAXS Curve'
+	savelabel = 'Simulated_SAXS_Curve'
+	plt.rc("axes", linewidth=2)
+	plt.rc("lines", markeredgewidth=2)
+	plt.rc('font', **{"sans-serif": ["Helvetica"]})
+	top = Toplevel(root)
+	fig = plt.Figure(figsize=(5, 4), dpi = 300)
+	ax1 = fig.add_subplot(111)
+	for tick in ax1.xaxis.get_major_ticks():
+		tick.label1.set_fontsize(8)
+		tick.label1.set_fontname('Helvetica')
+	for tick in ax1.yaxis.get_major_ticks():
+		tick.label1.set_fontsize(8)
+	ax1.set_xlabel('$q (\\AA^{-1})$', size=8)
+	ax1.set_ylabel('I(q)', size=8)
+	ax1.plot(saxs1.buf_model_q, I, label = plotlabel, markersize=2, color = '#009EBD')
+	ax1.legend(numpoints=1, fontsize=4, loc="best")
+	fig.savefig(savelabel + ".png", format='png',
+				bbox_inches='tight')
+	fig.subplots_adjust(left=0.15, bottom=0.20, right=0.95, top=0.92, wspace=0.21, hspace=0.67)
+	scatter = FigureCanvasTkAgg(fig, top)
+	scatter.get_tk_widget().pack()
+
 	return energy, saxs1
 
-# Associated Button	
+# Associated Button
 Generate = Button(root, text="Generate", width = 30, height = 2, bg = 'lightblue', command =gen_simulation).place(x=320, y=470)
-
+matplotlib.use('pdf')
 def err_calcs():
 
 	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))

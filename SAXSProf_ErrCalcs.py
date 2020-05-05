@@ -196,7 +196,6 @@ class err_Calcs:
             fig.tight_layout()
             plt.savefig(savelabel + ".png", format='png',
                         bbox_inches = 'tight')
-            plt.show()
         else:
             plt.rc("axes", linewidth=2)
             plt.rc("lines", markeredgewidth=2)
@@ -215,7 +214,6 @@ class err_Calcs:
             fig.tight_layout()
             plt.savefig(savelabel + ".png", format='png',
                         bbox_inches = 'tight')
-            plt.show()
 
     def plot_S2(self, X, Y1, Y2, plotlabel1 = '', plotlabel2 = '', savelabel = '', xlabel = '', ylabel = ''):
         if plotlabel1 == '' and plotlabel2 == '' and savelabel == '':
@@ -242,7 +240,6 @@ class err_Calcs:
             fig.tight_layout()
             plt.savefig(savelabel + ".png", format='png',
                         bbox_inches = 'tight')
-            plt.show()
         else:
             plt.rc("axes", linewidth=2)
             plt.rc("lines", markeredgewidth=2)
@@ -265,7 +262,6 @@ class err_Calcs:
             fig.tight_layout()
             plt.savefig(savelabel + ".png", format='png',
                         bbox_inches = 'tight')
-            plt.show()
 
     def tester(self):
         print(self.saxs1.sigma)
