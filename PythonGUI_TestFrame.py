@@ -17,17 +17,20 @@ heading = Label(root, text='Welcome to SAXProf: \nWhere all your SAXS \nsimulati
 
 # Build Labels
 label1 = Label(root, text = 'Enter your concentration (mg/ml): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 200)
-label2 = Label(root, text = 'Enter your MWt(kDa): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 300)
-label3 = Label(root, text = 'Enter your energy (keV): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 400)
+label2 = Label(root, text = 'Enter your MWt(kDa): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 250)
+label3 = Label(root, text = 'Enter your energy (keV): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 300)
 
 # Build Entries for Labels
 conc = StringVar()
 entry_box = Entry(root, textvariable = conc, width = 25, bg = 'lightgreen').place(x=350, y = 200)
 MWt = StringVar()
-entry_box = Entry(root, textvariable = MWt, width = 25, bg = 'lightgreen').place(x=350, y = 300)
+entry_box = Entry(root, textvariable = MWt, width = 25, bg = 'lightgreen').place(x=350, y = 250)
 Energy = StringVar()
-entry_box = Entry(root, textvariable = Energy, width = 25, bg = 'lightgreen').place(x=350, y = 400)
-
+entry_box = Entry(root, textvariable = Energy, width = 25, bg = 'lightgreen').place(x=350, y = 300)
+# Set default values #
+conc.set(5)
+MWt.set(14)
+Energy.set(14.14)
 
 def sim_params(energy = 14.14, P = 3.8e12, snaps = 1, a = 150.47,
 	d = 0.15, window_type = 'mica', sensor_thickness = 0.032, t = 0.4450):
@@ -53,7 +56,7 @@ def do_it():
 # blank = Entry(root)
 
 # Build Buttons:
-Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 5, bg = 'lightblue', command =do_it).place(x=320, y=450)
+Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 5, bg = 'lightblue', command =do_it).place(x=320, y=340)
 
 def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
     if len(X) == len(Y):
@@ -116,7 +119,7 @@ def gen_simulation():
 	return energy, saxs1
 
 # Associated Button	
-Generate = Button(root, text="Generate", width = 30, height = 5, bg = 'lightblue', command =gen_simulation).place(x=320, y=520)
+Generate = Button(root, text="Generate", width = 30, height = 5, bg = 'lightblue', command =gen_simulation).place(x=320, y=400)
 
 def err_calcs():
 
@@ -226,8 +229,8 @@ def err_calcs():
                  ylabel = '($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')	
 
 
-Error_Calcs = Button(root, text="Error Calculations", width = 30, height = 5, bg = 'lightblue', command =err_calcs).place(x=320, y=590)
+Error_Calcs = Button(root, text="Error Calculations", width = 30, height = 5, bg = 'lightblue', command =err_calcs).place(x=320, y=450)
 
 
-Button(root,text='Quit',command=root.destroy).place(x=20, y=590)
+Button(root,text='Quit',command=root.destroy).place(x=20, y=450)
 root.mainloop()
