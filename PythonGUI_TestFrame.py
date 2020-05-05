@@ -9,54 +9,60 @@ from SAXSProf_ErrCalcs import *
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 root = Tk()
-root.title("New Application")
+root.title("SAXSProf Desktop GUI")
 root.geometry("640x640+0+0")
 
 # Build Header
-heading = Label(root, text='Welcome to SAXProf: \nWhere all your SAXS \nsimulation dreams come true', font = ('helvetica', 40, 'bold'), fg = 'steelblue').pack()
+heading = Label(root, text='Welcome to SAXProf: \nWhere all your SAXS \nsimulation dreams come true', font = ('helvetica', 40, 'bold'), fg = '#F10303').pack()
 
-# Build Labels
+# Build Entry Labels
 label1 = Label(root, text = 'Enter your concentration (mg/ml): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 200)
 label2 = Label(root, text = 'Enter your MWt(kDa): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 250)
 label3 = Label(root, text = 'Enter your energy (keV): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 300)
+label4 = Label(root, text = 'Enter exposure time (seconds): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 350)
+label5 = Label(root, text = 'Enter flux (photons/second): ', font = ('helvetica', 20, 'bold'), fg = 'black').place(x=10, y = 400)
 
-# Build Entries for Labels
+# Build Entries for Entry Labels
 conc = StringVar()
-entry_box = Entry(root, textvariable = conc, width = 25, bg = 'lightgreen').place(x=350, y = 200)
+entry_box = Entry(root, textvariable = conc, width = 25, bg = '#2F8E08').place(x=350, y = 200)
 MWt = StringVar()
-entry_box = Entry(root, textvariable = MWt, width = 25, bg = 'lightgreen').place(x=350, y = 250)
+entry_box = Entry(root, textvariable = MWt, width = 25, bg = '#2F8E08').place(x=350, y = 250)
 Energy = StringVar()
-entry_box = Entry(root, textvariable = Energy, width = 25, bg = 'lightgreen').place(x=350, y = 300)
+entry_box = Entry(root, textvariable = Energy, width = 25, bg = '#2F8E08').place(x=350, y = 300)
+time = StringVar()
+entry_box = Entry(root, textvariable = time, width = 25, bg = '#2F8E08').place(x=350, y = 350)
+flux = StringVar()
+entry_box = Entry(root, textvariable = flux, width = 25, bg = '#2F8E08').place(x=350, y = 400)
 # Set default values #
 conc.set(5)
 MWt.set(14)
 Energy.set(14.14)
+time.set(0.50)
+flux.set(3.8e12)
 
 def sim_params(energy = 14.14, P = 3.8e12, snaps = 1, a = 150.47,
 	d = 0.15, window_type = 'mica', sensor_thickness = 0.032, t = 0.4450):
 	return energy, P, snaps, a, d, window_type, sensor_thickness, t
 
 def do_it():
-	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()))
+	print("-------------------------")
+	print("Simulation Parameters:")
+	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
 	print("The concentration (mg/ml) of your sample is:  " + str(conc.get()))
 	print("The MWt(kDa) of your sample is:  " + str(MWt.get()))
 	print("The energy (keV) is: " + str(Energy.get()))
-	print("The flux (photons/sec): " + str(P))
+	print("The flux (photons/sec): " + str(flux.get()))
 	print("The number of exposures taken: " + str(snaps))
-	print("The exposure time: " + str(t))
+	print("The exposure time: " + str(time.get()))
 	print("The sample-detector distance (cm) is: " + str(a))
 	print("The sample-thickness (cm): " + str(d))
 	print("The window material: " + str(window_type))
 	print("The sensor-thickness (cm): " + str(sensor_thickness))
+	print("-------------------------")
 
-# from tkinter.messagebox import *
-# def do_it():
-# 	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()))
-# 	blank.insert(0, energy)
-# blank = Entry(root)
 
 # Build Buttons:
-Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 5, bg = 'lightblue', command =do_it).place(x=320, y=340)
+Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 2, bg = 'lightblue', command =do_it).place(x=320, y=430)
 
 def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
     if len(X) == len(Y):
@@ -84,11 +90,11 @@ def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
 
 def gen_simulation():
 
-	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()))
+	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
 
 	# c = 5.0 # concentration (mg.ml)
 	c = np.array(conc.get())
-	t = 0.4450 # Exposure time (seconds)
+	# t = time.get() # Exposure time (seconds)
 	# mw1 = 14.3 # Molecular Weight (kDa)
 	mw1 = np.array(MWt.get())
 	saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t*snaps,c=c,shape='FoxS', detector='100K')
@@ -119,14 +125,14 @@ def gen_simulation():
 	return energy, saxs1
 
 # Associated Button	
-Generate = Button(root, text="Generate", width = 30, height = 5, bg = 'lightblue', command =gen_simulation).place(x=320, y=400)
+Generate = Button(root, text="Generate", width = 30, height = 2, bg = 'lightblue', command =gen_simulation).place(x=320, y=470)
 
 def err_calcs():
 
-	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()))
+	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
 	# c = 5.0 # concentration (mg.ml)
 	c = np.array(conc.get())
-	t = 0.4450 # Exposure time (seconds)
+	# t = time.get() # Exposure time (seconds)
 	# mw1 = 14.3 # Molecular Weight (kDa)
 	mw1 = np.array(MWt.get())
 	saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t*snaps,c=c,shape='FoxS', detector='100K')
@@ -228,9 +234,9 @@ def err_calcs():
                  xlabel = '$\Delta \\rho (cm^{-2})$',
                  ylabel = '($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')	
 
+# Associated Button
+Error_Calcs = Button(root, text="Error Calculations", width = 30, height = 2, bg = 'lightblue', command =err_calcs).place(x=320, y=510)
 
-Error_Calcs = Button(root, text="Error Calculations", width = 30, height = 5, bg = 'lightblue', command =err_calcs).place(x=320, y=450)
-
-
-Button(root,text='Quit',command=root.destroy).place(x=20, y=450)
+# Build a 'quit' button
+Button(root,text='Quit',command=root.destroy).place(x=565, y=550)
 root.mainloop()
