@@ -44,25 +44,37 @@ def sim_params(energy = 14.14, P = 3.8e12, snaps = 1, a = 150.47,
 	d = 0.15, window_type = 'mica', sensor_thickness = 0.032, t = 0.4450):
 	return energy, P, snaps, a, d, window_type, sensor_thickness, t
 
-def do_it():
-	print("-------------------------")
-	print("Simulation Parameters:")
-	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
-	print("The concentration (mg/ml) of your sample is:  " + str(conc.get()))
-	print("The MWt(kDa) of your sample is:  " + str(MWt.get()))
-	print("The energy (keV) is: " + str(Energy.get()))
-	print("The flux (photons/sec): " + str(flux.get()))
-	print("The number of exposures taken: " + str(snaps))
-	print("The exposure time: " + str(time.get()))
-	print("The sample-detector distance (cm) is: " + str(a))
-	print("The sample-thickness (cm): " + str(d))
-	print("The window material: " + str(window_type))
-	print("The sensor-thickness (cm): " + str(sensor_thickness))
-	print("-------------------------")
+# Building outputs
 
+
+def sim_param_list():
+	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
+	paramList = [str(energy), str(conc.get()), str(MWt.get()),str(P), str(snaps), str(a), str(d), str(window_type), str(sensor_thickness), str(t)]
+	paramNameList = ['Energy (keV): ', 'Conc. (mg/ml) of Sample: ', 'MWt(kDa) of Sample: ','Flux (photons/second): ', 'Snaps: ', 'Sample-Detector Distance (cm): ',
+					 'Sample Cell Length (cm): ', 'Window Type: ', 'Sensor Thickness (cm): ', 'Exposure Time (s): ']
+	top_window = Toplevel(root)
+	for ind, paramNameList in enumerate(paramNameList):
+		# print names in the tkinter window
+		# create a label widget in top_window
+		names_label = Label(top_window)
+		# values_label = Label(top_window)
+		# give it a position using grid
+		names_label.grid(row=int(ind) + 1, column=0)
+		# values_label.grid(row=int(ind) + 1, column=1)
+		# print the fruit name in the label
+		names_label.config(text=paramNameList, font = ('helvetica', 20, 'bold'))
+		# values_label.config(text=paramList)
+	for ind, paramList in enumerate(paramList):
+		# print names in the tkinter window
+		# create a label widget in top_window
+		values_label = Label(top_window)
+		# give it a position using grid
+		values_label.grid(row=int(ind) + 1, column=1)
+		# print the fruit name in the label
+		values_label.config(text=paramList, font = ('helvetica', 20))
 
 # Build Buttons:
-Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 2, bg = 'lightblue', command =do_it).place(x=320, y=430)
+Simulation_Parameters = Button(root, text="Simulation Parameters", width = 30, height = 2, bg = 'lightblue', command = sim_param_list).place(x=320, y=430)
 
 def plot_S1(X, Y, plotlabel = '', savelabel = '', xlabel = '', ylabel = ''):
     if len(X) == len(Y):
