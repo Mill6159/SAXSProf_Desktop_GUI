@@ -163,7 +163,7 @@ def gen_simulation():
 
 # Associated Button
 Generate = Button(root, text="Generate", width = 30, height = 2, bg = 'lightblue', command =gen_simulation).place(x=320, y=470)
-matplotlib.use('pdf')
+
 def err_calcs():
 
 	energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy = np.float(Energy.get()),P = np.float(flux.get()) ,t = np.float(time.get()))
