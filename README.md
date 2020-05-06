@@ -1,5 +1,5 @@
 # SAXProf
-This is a stripped-down SAXSProf example that was used to create the web version of SAXSProf.
+This is a stripped-down SAXSProf example that was used to create the web version of SAXSProf and has been repurposed for a desktop GUI and more advanced error calculations for SAXS curves at high pressure.
 
 ## Running
 1. install a python environment that contains matplotlib etc. I use Enthought's academic distribution, but others should work.
@@ -50,3 +50,11 @@ This class calculates the error in Rg as determined by the Guiner fit as is outl
 This allows for comparison of the Rg error from an analytical model (i.e. we know where the error comes from) and the error produced by many fitting routines
 such as RAW or primus.
 Furthermore, this allowed for us to model the error in Rg as a function of concentration and pressure (contrast), which is also outlined in the *_Formula.pdf file.
+
+## Running Desktop GUI
+
+Ensure you have Python3 installed locally as well as the following Python modules:
+(1) Matplotlib
+(2) tkinter
+(3) numpy
+(4) scipy

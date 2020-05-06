@@ -162,7 +162,7 @@ def gen_simulation():
 	return energy, saxs1
 
 # Associated Button
-Generate = Button(root, text="Generate", width = 30, height = 2, bg = 'lightblue', command =gen_simulation).place(x=320, y=470)
+Generate = Button(root, text="Generate SAXS Curve", width = 30, height = 2, bg = 'lightblue', command =gen_simulation).place(x=320, y=470)
 
 def err_calcs():
 
