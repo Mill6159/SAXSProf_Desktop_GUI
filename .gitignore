@@ -5,3 +5,7 @@
 
 # ignore png files
 *.png
+
+
+# python venv stuff
+venv/*
