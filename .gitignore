@@ -1,2 +1,7 @@
 # User-specific stuff
 .idea/*
+
+
+
+# ignore png files
+*.png
