@@ -9,3 +9,7 @@
 
 # python venv stuff
 venv/*
+
+
+#python stuff
+*.pyc
