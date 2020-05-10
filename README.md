@@ -64,7 +64,7 @@ We generated a new class (SAXProf_ErrCalcs.py).
 This class calculates the error in Rg as determined by the Guiner fit as is outlined in the Analytical_Derivation_Final.pdf file within this repository.
 This allows for comparison of the Rg error from an analytical model (i.e. we know where the error comes from) and the error produced by many fitting routines
 such as RAW or primus.
-Furthermore, this allowed for us to model the error in Rg as a function of concentration and pressure (contrast), which is also outlined in the *_Formula.pdf file.
+Furthermore, this allowed for us to model the error in Rg as a function of concentration and pressure (contrast), which is also outlined in the Analytical_Derivation_Final.pdf file.
 
 ## Running Desktop GUI
 
@@ -74,7 +74,7 @@ Ensure you have Python3 installed locally as well as the following Python module
 (3) numpy  
 (4) scipy  
   
-To make this easier, you can simply run the bash_script 'SAXSProf_Setup.sh'. To run the setup script:  
+To make this easier, you can simply run the bash_script '''SAXSProf_Setup.sh'''. To run the setup script:  
 (1) Open terminal and navigate to the directory containing all of the SAXSProf code/files  
 (2) Run the command 'sh SAXSProf_Setup.sh'. Assuming Python3 is already installed locally, the necessary Python packages should be installed.  
-(3) If an error message is printed, install the packages manually.,
+(3) If an error message is printed, install the packages manually.
