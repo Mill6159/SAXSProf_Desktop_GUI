@@ -54,7 +54,7 @@ Furthermore, this allowed for us to model the error in Rg as a function of conce
 ## Running Desktop GUI
 
 Ensure you have Python3 installed locally as well as the following Python modules:
-(1) Matplotlib
-(2) tkinter
-(3) numpy
-(4) scipy
+(1) Matplotlib  
+(2) tkinter  
+(3) numpy  
+(4) scipy  

@@ -1,12 +1,8 @@
 ####################################
-import numpy as np
-from SAXS8 import *
 import matplotlib
-
+from SAXS8 import *
 matplotlib.use('TkAgg')
-import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 import warnings
 from tkinter import *
 from SAXSProf_ErrCalcs import *
