@@ -1,4 +1,4 @@
-####################################
+########################################################################
 import matplotlib
 from SAXS8 import *
 matplotlib.use('TkAgg')
@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import warnings
 from tkinter import *
 from SAXSProf_ErrCalcs import *
-
+########################################################################
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 root = Tk()
