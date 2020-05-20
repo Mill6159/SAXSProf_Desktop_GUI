@@ -155,6 +155,18 @@ class err_Calcs:
                     errRg.append(sig_Rg / Rg)
                     sig2_Rg_out.append(sig_Rg)
                 print('Rg relative error as calculated as a function of contrast (i.e pressure) via the calc_errRg_contrast() function')
+                ### RM 05.20.2020
+                ### Is I(q) normally distributed? ###
+                from scipy import stats
+                Guin = slope*q+inter
+                test = sig2_Rg_out + sig2_Rg_out
+                k2,p = stats.normaltest(sigma)
+                alpha = 1e-3
+                if p < alpha:
+                    print("Non-Normal distribution of I(q)'s")
+                else:
+                    print("I_w_Noise is normally distributed")
+                #### End Normalcy test
                 return rho, errRg, sig2_Rg_out
             else:
                 print('Something went wrong calculating the contrast term.')
