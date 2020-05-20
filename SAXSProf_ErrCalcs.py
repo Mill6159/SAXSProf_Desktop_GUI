@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
 
+
 class err_Calcs:
 
     def __init__(self, saxs1 = [], I_no_noise = [], I_w_noise = [], I_no_noise_calc = [], c = [], synth_buf = [],

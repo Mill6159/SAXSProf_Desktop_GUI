@@ -276,12 +276,54 @@ def err_calcs():
     exptData = np.ndarray.tolist(CytC_data['RgErrRelPercent'])
     exptData.pop(2)
 
-    err_data.plot_S2(popRho, [x * 100 for x in popRgErr], exptData,
+    def plot_S3(X, X2, Y1, Y2, plotlabel1 = '', plotlabel2 = '', savelabel = '', xlabel = '', ylabel = '',xlabel2=''):
+        plt.rc("axes",linewidth=2)
+        plt.rc("lines",markeredgewidth=2)
+        plt.rc('font',**{"sans-serif": ["Helvetica"]})
+        top = Toplevel(root)
+        fig = plt.Figure(figsize=(6,4),dpi=500)
+        DPI = fig.get_dpi()
+        fig.set_size_inches(2400.0 / float(DPI),1220.0 / float(DPI))
+        ax1 = fig.add_subplot(111)
+        ax2 = ax1.twiny()
+        for tick in ax1.xaxis.get_major_ticks():
+            tick.label1.set_fontsize(8)
+            tick.label1.set_fontname('Helvetica')
+        for tick in ax1.yaxis.get_major_ticks():
+            tick.label1.set_fontsize(8)
+        for tick in ax2.xaxis.get_major_ticks():
+            tick.label1.set_fontsize(8)
+            tick.label1.set_fontname('Helvetica')
+        ax1.set_xlabel(xlabel,size=8)
+        ax1.set_ylabel(ylabel,size=8)
+        ax2.set_xlabel(xlabel2,size=8)
+        ax1.plot(X,Y1,'-o',label=plotlabel1,markersize=2,color='#009EBD')
+        ax1.plot(X,Y2,'--',
+                 linewidth=4,
+                 color='k',
+                 label=plotlabel2)
+        ax2.plot(X2,Y1,linestyle='None')
+        ax1.xaxis.set_major_locator(plt.MaxNLocator(5))
+        ax2.xaxis.set_major_locator(plt.MaxNLocator(5))
+        ax2.set_xlim(350,0)
+        # ax2.set_xticks([350,300,200,100,10,0])
+        ax1.legend(numpoints=1,fontsize=4,loc="best")
+        fig.tight_layout()
+        fig.savefig(savelabel + ".png",format='png',
+                    bbox_inches='tight')
+        fig.subplots_adjust(left=0.20,bottom=0.20,right=0.90,top=0.80,wspace=0.21,hspace=0.67)
+        scatter = FigureCanvasTkAgg(fig,top)
+        scatter.get_tk_widget().pack()
+
+    plist = np.array([350,300,200,100,10,0])
+
+    plot_S3(popRho, plist, [x * 100 for x in popRgErr], exptData,
                      plotlabel1='Simulated Error - Analytical model',
                      plotlabel2='Experimental Cytochrome C Data',
                      savelabel='SimandExpt_err_Rg_func_of_Contrast',
                      xlabel='$\Delta \\rho (cm^{-2})$',
-                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
+                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$',
+                     xlabel2='Pressure (MPa)')
 
 
 # Associated Button
