@@ -281,7 +281,7 @@ def err_calcs():
         plt.rc("lines",markeredgewidth=2)
         plt.rc('font',**{"sans-serif": ["Helvetica"]})
         top = Toplevel(root)
-        fig = plt.Figure(figsize=(6,4),dpi=500)
+        fig = plt.Figure(figsize=(8,8),dpi=500)
         DPI = fig.get_dpi()
         fig.set_size_inches(2400.0 / float(DPI),1220.0 / float(DPI))
         ax1 = fig.add_subplot(111)
