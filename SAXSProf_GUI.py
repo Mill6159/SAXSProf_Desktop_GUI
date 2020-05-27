@@ -7,8 +7,8 @@ import warnings
 from tkinter import *
 from SAXSProf_ErrCalcs import *
 ########################################################################
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-
+warnings.filterwarnings("ignore", category=RuntimeWarning) # Remove warning caused by dividing through by 0
+# GUI framework
 root = Tk()
 root.title("SAXSProf Desktop GUI")
 root.geometry("640x640+0+0")
@@ -45,6 +45,8 @@ Energy.set(14.14)
 time.set(0.50)
 flux.set(3.8e12)
 
+# End General GUI framework
+# Some buttons for the GUI will be below
 
 def sim_params(energy=14.14, P=3.8e12, snaps=1, a=150.47,
                d=0.15, window_type='mica', sensor_thickness=0.032, t=0.4450):
@@ -52,7 +54,7 @@ def sim_params(energy=14.14, P=3.8e12, snaps=1, a=150.47,
 
 
 # Building outputs
-
+# First, a simple button to return all of the simulations parameters
 def sim_param_list():
     energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
@@ -88,7 +90,7 @@ def sim_param_list():
 Simulation_Parameters = Button(root, text="Simulation Parameters", width=30, height=2, bg='lightblue',
                                command=sim_param_list).place(x=320, y=430)
 
-
+# General plotting function for 1 dependent variable
 def plot_S1(X, Y, plotlabel='', savelabel='', xlabel='', ylabel=''):
     if len(X) == len(Y):
         plotlabel = plotlabel
@@ -111,7 +113,11 @@ def plot_S1(X, Y, plotlabel='', savelabel='', xlabel='', ylabel=''):
         plt.savefig(savelabel + ".png", format='png',
                     bbox_inches='tight')
 
-
+# Basic SAXSProf simulation:
+# Returns and SAXS profile based off simulation parameters
+# Buffer, window, and vacuum profiles were collected previously
+# SAXS profile is based off of lysozyme
+# Where a FoxS input is used
 def gen_simulation():
     energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
