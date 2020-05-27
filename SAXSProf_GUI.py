@@ -21,14 +21,12 @@ heading = Label(root, text='Welcome to SAXProf: \nWhere all your SAXS \nsimulati
                 font=('helvetica', 40, 'bold'), fg='#F10303').pack()
 
 # Build Entry Labels
-label1 = Label(root, text='Enter your concentration (mg/ml): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,
-                                                                                                                  y=200)
+label1 = Label(root, text='Enter your concentration (mg/ml): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10, y=200)
 label2 = Label(root, text='Enter your MWt(kDa): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10, y=250)
 label3 = Label(root, text='Enter your energy (keV): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10, y=300)
-label4 = Label(root, text='Enter exposure time (seconds): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,
-                                                                                                               y=350)
-label5 = Label(root, text='Enter flux (photons/second): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,
-                                                                                                             y=400)
+label4 = Label(root, text='Enter exposure time (seconds): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,y=350)
+label5 = Label(root, text='Enter flux (photons/second): ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,y=400)
+label6 = Label(root, text='Enter detector type: ', font=('helvetica', 20, 'bold'), fg='black').place(x=10,y=450)
 
 # Build Entries for Entry Labels
 conc = StringVar()
@@ -41,33 +39,37 @@ time = StringVar()
 entry_box = Entry(root, textvariable=time, width=25, bg='#2F8E08').place(x=350, y=350)
 flux = StringVar()
 entry_box = Entry(root, textvariable=flux, width=25, bg='#2F8E08').place(x=350, y=400)
+detector_type = StringVar()
+entry_box = Entry(root, textvariable=detector_type, width=25, bg='#2F8E08').place(x=350, y=450)
 # Set default values #
 conc.set(5)
 MWt.set(14)
 Energy.set(14.14)
 time.set(0.50)
 flux.set(3.8e12)
+detector_type.set('100K')
 
 '''End General GUI framework
 Some buttons for the GUI will be below'''
 
 def sim_params(energy=14.14, P=3.8e12, snaps=1, a=150.47,
-               d=0.15, window_type='mica', sensor_thickness=0.032, t=0.4450):
-    return energy, P, snaps, a, d, window_type, sensor_thickness, t
+               d=0.15, window_type='mica', sensor_thickness=0.032, t=0.4450,detector='100K'):
+    return energy, P, snaps, a, d, window_type, sensor_thickness, t, detector
 
 
 '''Building outputs
 First, a simple button to return all of the simulations parameters'''
 
 def sim_param_list():
-    energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
+    energy, P, snaps, a, d, window_type, sensor_thickness, t, detector = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
-                                                                          t=np.float(time.get()))
+                                                                          t=np.float(time.get()),
+                                                                          detector=detector_type.get())
     paramList = [str(energy), str(conc.get()), str(MWt.get()), str(P), str(snaps), str(a), str(d), str(window_type),
-                 str(sensor_thickness), str(t)]
+                 str(sensor_thickness), str(t), str(detector)]
     paramNameList = ['Energy (keV): ', 'Conc. (mg/ml) of Sample: ', 'MWt(kDa) of Sample: ', 'Flux (photons/second): ',
                      'Snaps: ', 'Sample-Detector Distance (cm): ',
-                     'Sample Cell Length (cm): ', 'Window Type: ', 'Sensor Thickness (cm): ', 'Exposure Time (s): ']
+                     'Sample Cell Length (cm): ', 'Window Type: ', 'Sensor Thickness (cm): ', 'Exposure Time (s): ', 'Detector Type: ']
     top_window = Toplevel(root, bg='#898585')
     for ind, paramNameList in enumerate(paramNameList):
         # print names in the tkinter window
@@ -93,7 +95,7 @@ def sim_param_list():
 '''Build Buttons:'''
 
 Simulation_Parameters = Button(root, text="Simulation Parameters", width=30, height=2, bg='lightblue',
-                               command=sim_param_list).place(x=320, y=430)
+                               command=sim_param_list).place(x=320, y=480)
 
 # General plotting function for 1 dependent variable
 def plot_S1(X, Y, plotlabel='', savelabel='', xlabel='', ylabel=''):
@@ -164,7 +166,7 @@ def gen_simulation(plot=True):
     t = 10  # Exposure time (seconds)
     mw1 = 14.3  # Molecular Weight (kDa)
 
-    saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t * snaps,c=c,shape='FoxS',detector='100K')
+    saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t * snaps,c=c,shape='FoxS',detector=detector_type.get())
     saxs1.set_window(window_type)
     saxs1.sensor_thickness = sensor_thickness
     saxs1.det_eff = saxs1.QE(saxs1.lam,saxs1.sensor_thickness)
@@ -219,9 +221,9 @@ def gen_simulation(plot=True):
     #############################################################################
     #############################################################################
 
-    saxs1.energy, saxs1.P, saxs1.snaps, saxs1.a, saxs1.d, saxs1.window_type, saxs1.sensor_thickness, saxs1.t = sim_params(energy=np.float(Energy.get()),
+    saxs1.energy, saxs1.P, saxs1.snaps, saxs1.a, saxs1.d, saxs1.window_type, saxs1.sensor_thickness, saxs1.t, detector = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
-                                                                          t=np.float(time.get()))
+                                                                          t=np.float(time.get()), detector=detector_type.get())
     saxs1.set_energy(14.14)  # this energy is energy for simulated data
 
     # re-calculate visible q-range and "pixels per bin" array (NofPixels)
@@ -281,7 +283,7 @@ def gen_simulation(plot=True):
 '''Associated Button'''
 
 Generate = Button(root, text="Generate SAXS Curve", width=30, height=2, bg='lightblue', command=gen_simulation).place(
-    x=320, y=470)
+    x=320, y=520)
 
 
 def err_calcs():
@@ -342,8 +344,7 @@ def err_calcs():
 
     rho, Rg_error_contrast, sig2_Rg_out = err_data.calc_errRg_contrast()
 
-     '''A plot of the simulated Rg error WITHOUT a model
-     commented out unless needed'''
+    '''A plot of the simulated Rg error WITHOUT a model commented out unless needed'''
 
     # err_data.plot_S1(rho, [x * 100 for x in Rg_error_contrast],
     #                  plotlabel='Simulated Error',
@@ -434,9 +435,9 @@ def err_calcs():
                      xlabel2='Pressure (MPa)')
 
 
-# Associated Button
+'''Associated Button for error calculations'''
 Error_Calcs = Button(root, text="Error Calculations", width=30, height=2, bg='lightblue', command=err_calcs).place(
-    x=320, y=510)
+    x=320, y=560)
 
 
 def quit_application():
@@ -446,6 +447,6 @@ def quit_application():
     exit(0)
 
 
-# Build a 'quit' button
-Button(root, text='Quit', command=quit_application).place(x=565, y=550)
+'''Build a 'quit' button'''
+Button(root, text='Quit', command=quit_application).place(x=565, y=600)
 root.mainloop()
