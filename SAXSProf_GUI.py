@@ -118,7 +118,7 @@ Returns and SAXS profile based off simulation parameters
 Buffer, window, and vacuum profiles were collected previously
 SAXS profile is based off of lysozyme
 Where a FoxS input is used'''
-def gen_simulation():
+def gen_simulation(plot=True):
     #############################################################
     # Initial User Inputs
     #
@@ -243,30 +243,57 @@ def gen_simulation():
     # calculated smooth I and sigma on same q points as I_w_noise
     I_no_noise_calc = saxs1.Icalc * saxs1.t * saxs1.pixel_size ** 2  # in register with buffer
     I_sigma = saxs1.sigma
-    plotlabel = 'Simulated SAXS Curve'
-    savelabel = 'Simulated_SAXS_Curve'
-    plt.rc("axes", linewidth=2)
-    plt.rc("lines", markeredgewidth=2)
-    plt.rc('font', **{"sans-serif": ["Helvetica"]})
-    top = Toplevel(root)
-    fig = plt.Figure(figsize=(5, 4), dpi=300)
-    ax1 = fig.add_subplot(111)
-    for tick in ax1.xaxis.get_major_ticks():
-        tick.label1.set_fontsize(8)
-        tick.label1.set_fontname('Helvetica')
-    for tick in ax1.yaxis.get_major_ticks():
-        tick.label1.set_fontsize(8)
-    ax1.set_xlabel('$q (\\AA^{-1})$', size=8)
-    ax1.set_ylabel('I(q)', size=8)
-    ax1.semilogy(saxs1.buf_model_q, I_w_noise, label=plotlabel, markersize=2, color='#009EBD')
-    ax1.legend(numpoints=1, fontsize=4, loc="best")
-    fig.savefig(savelabel + ".png", format='png',
-                bbox_inches='tight')
-    fig.subplots_adjust(left=0.15, bottom=0.20, right=0.95, top=0.92, wspace=0.21, hspace=0.67)
-    scatter = FigureCanvasTkAgg(fig, top)
-    scatter.get_tk_widget().pack()
+
+    if plot == True:
+        plotlabel = 'Simulated SAXS Curve'
+        savelabel = 'Simulated_SAXS_Curve'
+        plt.rc("axes",linewidth=2)
+        plt.rc("lines",markeredgewidth=2)
+        plt.rc('font',**{"sans-serif":["Helvetica"]})
+        top = Toplevel(root)
+        fig = plt.Figure(figsize=(5,4),dpi=300)
+        ax1 = fig.add_subplot(111)
+        for tick in ax1.xaxis.get_major_ticks():
+            tick.label1.set_fontsize(8)
+            tick.label1.set_fontname('Helvetica')
+        for tick in ax1.yaxis.get_major_ticks():
+            tick.label1.set_fontsize(8)
+        ax1.set_xlabel('$q (\\AA^{-1})$',size=8)
+        ax1.set_ylabel('I(q)',size=8)
+        ax1.semilogy(saxs1.buf_model_q,I_w_noise,label=plotlabel,markersize=2,color='#009EBD')
+        ax1.legend(numpoints=1,fontsize=4,loc="best")
+        fig.savefig(savelabel + ".png",format='png',
+                    bbox_inches='tight')
+        fig.subplots_adjust(left=0.15,bottom=0.20,right=0.95,top=0.92,wspace=0.21,hspace=0.67)
+        scatter = FigureCanvasTkAgg(fig,top)
+        scatter.get_tk_widget().pack()
+    else:
+        print('Simulated SAXS profile was NOT generated')
+    # plotlabel = 'Simulated SAXS Curve'
+    # savelabel = 'Simulated_SAXS_Curve'
+    # plt.rc("axes", linewidth=2)
+    # plt.rc("lines", markeredgewidth=2)
+    # plt.rc('font', **{"sans-serif": ["Helvetica"]})
+    # top = Toplevel(root)
+    # fig = plt.Figure(figsize=(5, 4), dpi=300)
+    # ax1 = fig.add_subplot(111)
+    # for tick in ax1.xaxis.get_major_ticks():
+    #     tick.label1.set_fontsize(8)
+    #     tick.label1.set_fontname('Helvetica')
+    # for tick in ax1.yaxis.get_major_ticks():
+    #     tick.label1.set_fontsize(8)
+    # ax1.set_xlabel('$q (\\AA^{-1})$', size=8)
+    # ax1.set_ylabel('I(q)', size=8)
+    # ax1.semilogy(saxs1.buf_model_q, I_w_noise, label=plotlabel, markersize=2, color='#009EBD')
+    # ax1.legend(numpoints=1, fontsize=4, loc="best")
+    # fig.savefig(savelabel + ".png", format='png',
+    #             bbox_inches='tight')
+    # fig.subplots_adjust(left=0.15, bottom=0.20, right=0.95, top=0.92, wspace=0.21, hspace=0.67)
+    # scatter = FigureCanvasTkAgg(fig, top)
+    # scatter.get_tk_widget().pack()
 
     return energy, saxs1
+
 
 
 
@@ -277,115 +304,7 @@ Generate = Button(root, text="Generate SAXS Curve", width=30, height=2, bg='ligh
 
 def err_calcs():
 
-    c = 5.0 # concentration (mg.ml)
-    t = time.get() # Exposure time (seconds)
-    mw1 = 14.3 # Molecular Weight (kDa)
-
-    #############################################################
-    # Initial User Inputs
-    #
-    #############################################################
-    energy = 9.962  # energy (keV)
-    P = 8.4e11  # flux (photons/s)
-    t = 1.0  # exposure time for individual snapshots (s)
-    snaps = 1  # number of snapshots averaged
-    a = 150.47  # sample-to-detector distance (cm)
-    d = 0.15  # sample cell path length (cm)
-
-    window_type = "mica"  # type of window material on sample cell
-
-    sensor_thickness = 0.032  # Pilatus sensor thickness
-
-    # These files below are only used when generating the "standard profiles."
-
-    # buffer with empty cell subtracted
-    buffer_model = "/S_A_nov07_028_lysbufnorm_flat.dat"
-    buffer_exposure = t  # exposure used for buffer model
-    buffer_flux = P  # flux used for buffer model
-
-    vac_model = "/A_nov07_072_lysbufnorm.dat"
-    vac_exposure = t
-    vac_flux = P
-
-    win_model = "/S_A_nov07_026_lysbufnorm.dat"
-    win_exposure = t
-    win_flux = P
-
-    #############################################################################
-    #############################################################################
-
-    sample_model_1 = "6lyz.pdb.dat"
-
-    # c = 4.0  # concentration (mg.ml)
-    # t = 10  # Exposure time (seconds)
-    # mw1 = 14.3  # Molecular Weight (kDa)
-
-    saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t * snaps,c=c,shape='FoxS',detector='100K')
-    saxs1.set_window(window_type)
-    saxs1.sensor_thickness = sensor_thickness
-    saxs1.det_eff = saxs1.QE(saxs1.lam,saxs1.sensor_thickness)
-
-    #  determines the q-space range based on detector and mask. Default_q starts at q = 0, mask_q starts at q_min
-
-    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")
-
-    # buffer, vacuum, window, and model profiles read in and interpolated onto default_q
-    # saxs1.buf_q are the q points of default_q that fall within buf's q range
-    #
-    # saxs1.load_buf(buffer_model, t=buffer_exposure, P=buffer_flux, interpolate=True, q_array = saxs1.default_q)
-    # saxs1.load_vac(vac_model, t=vac_exposure, P=vac_flux, interpolate=True, q_array = saxs1.default_q)
-    # saxs1.load_win(win_model, t=win_exposure, P=win_flux, interpolate=True, q_array = saxs1.default_q)
-    saxs1.load_I(sample_model_1,interpolate=True,q_array=saxs1.default_q)
-
-    #############################################################################
-    # Here we load in
-    #############################################################################
-
-    saxs1.readStandardProfiles("M_Nov07_")
-
-    saxs1.v = 0.72  # protein specific volume
-    saxs1.pp = 322e21 / saxs1.v  # (from dry mass/specific volume)
-    saxs1.ps = 334.6e21  # electrons/cm3 for buffer (water)
-    saxs1.p = (saxs1.pp - saxs1.ps) * 2.818e-13  # contrast
-
-    print('Contrast, Protein e Density',saxs1.p,saxs1.pp)
-
-    saxs1.d = 0.15  # microfluidic mixing chip
-    # saxs1.P = 1.6e11   # 8 um x 13 um CRL beam
-    # saxs1.P = 3.8e12  # CHESS-U Flux, Ph/s
-
-
-
-    # saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
-    # saxs1.set_window(window_type)
-    # saxs1.sensor_thickness = sensor_thickness
-    # saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
-    # saxs1.readStandardProfiles("M_Nov07_")
-    # #############################################################################
-    #
-    # saxs1.d = 0.15  # microfluidic mixing chip
-
-    energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
-                                                                          P=np.float(flux.get()),
-                                                                          t=np.float(time.get()))
-    saxs1.set_energy(energy)  # this energy is energy for simulated data
-    saxs1.create_Mask(98, 3, 45, 14, wedge=360.0, type="rectangle") # energy dependent
-
-    # need to re-load model so we can re-interpolate onto new default_q
-    # sample_model_1 = "6lyz.pdb.dat"
-    saxs1.load_I(sample_model_1, interpolate=True, q_array=saxs1.default_q)
-    saxs1.simulate_buf(subtracted=True)
-
-    # Reassign variables to ensure things are assigned properly
-    saxs1.mw = np.array(MWt.get())
-    saxs1.c = np.array(conc.get())
-    saxs1.energy = energy
-    saxs1.P = P
-    saxs1.snaps = snaps
-    saxs1.a = a
-    saxs1.d = d
-    saxs1.sensor_thickness= sensor_thickness
-
+    energy, saxs1 = gen_simulation(plot=False)
     err_data = err_Calcs(saxs1=saxs1)
     concentration, rgError, log_sig = err_data.calc_errRg_conc()
 
