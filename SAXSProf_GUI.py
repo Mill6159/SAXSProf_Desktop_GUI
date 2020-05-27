@@ -8,12 +8,15 @@ from tkinter import *
 from SAXSProf_ErrCalcs import *
 ########################################################################
 warnings.filterwarnings("ignore", category=RuntimeWarning) # Remove warning caused by dividing through by 0
-# GUI framework
+
+'''GUI framework'''
+
 root = Tk()
 root.title("SAXSProf Desktop GUI")
 root.geometry("640x640+0+0")
 
-# Build Header
+'''Build Header'''
+
 heading = Label(root, text='Welcome to SAXProf: \nWhere all your SAXS \nsimulation dreams come true',
                 font=('helvetica', 40, 'bold'), fg='#F10303').pack()
 
@@ -53,8 +56,9 @@ def sim_params(energy=14.14, P=3.8e12, snaps=1, a=150.47,
     return energy, P, snaps, a, d, window_type, sensor_thickness, t
 
 
-# Building outputs
-# First, a simple button to return all of the simulations parameters
+'''Building outputs
+First, a simple button to return all of the simulations parameters'''
+
 def sim_param_list():
     energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
@@ -86,7 +90,8 @@ def sim_param_list():
         values_label.config(text=paramList, font=('helvetica', 20), bg='#898585')
 
 
-# Build Buttons:
+'''Build Buttons:'''
+
 Simulation_Parameters = Button(root, text="Simulation Parameters", width=30, height=2, bg='lightblue',
                                command=sim_param_list).place(x=320, y=430)
 
@@ -118,6 +123,7 @@ Returns and SAXS profile based off simulation parameters
 Buffer, window, and vacuum profiles were collected previously
 SAXS profile is based off of lysozyme
 Where a FoxS input is used'''
+
 def gen_simulation(plot=True):
     #############################################################
     # Initial User Inputs
@@ -269,35 +275,11 @@ def gen_simulation(plot=True):
         scatter.get_tk_widget().pack()
     else:
         print('Simulated SAXS profile was NOT generated')
-    # plotlabel = 'Simulated SAXS Curve'
-    # savelabel = 'Simulated_SAXS_Curve'
-    # plt.rc("axes", linewidth=2)
-    # plt.rc("lines", markeredgewidth=2)
-    # plt.rc('font', **{"sans-serif": ["Helvetica"]})
-    # top = Toplevel(root)
-    # fig = plt.Figure(figsize=(5, 4), dpi=300)
-    # ax1 = fig.add_subplot(111)
-    # for tick in ax1.xaxis.get_major_ticks():
-    #     tick.label1.set_fontsize(8)
-    #     tick.label1.set_fontname('Helvetica')
-    # for tick in ax1.yaxis.get_major_ticks():
-    #     tick.label1.set_fontsize(8)
-    # ax1.set_xlabel('$q (\\AA^{-1})$', size=8)
-    # ax1.set_ylabel('I(q)', size=8)
-    # ax1.semilogy(saxs1.buf_model_q, I_w_noise, label=plotlabel, markersize=2, color='#009EBD')
-    # ax1.legend(numpoints=1, fontsize=4, loc="best")
-    # fig.savefig(savelabel + ".png", format='png',
-    #             bbox_inches='tight')
-    # fig.subplots_adjust(left=0.15, bottom=0.20, right=0.95, top=0.92, wspace=0.21, hspace=0.67)
-    # scatter = FigureCanvasTkAgg(fig, top)
-    # scatter.get_tk_widget().pack()
 
     return energy, saxs1
 
+'''Associated Button'''
 
-
-
-# Associated Button
 Generate = Button(root, text="Generate SAXS Curve", width=30, height=2, bg='lightblue', command=gen_simulation).place(
     x=320, y=470)
 
@@ -332,8 +314,11 @@ def err_calcs():
                      xlabel='Conc. ($\\frac{mg}{ml}$)',
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$)')
 
-    # RM! 04.28.2020
-    # Contrast values taken from RM script.
+
+    '''RM! 04.28.2020
+    Contrast values taken from RM script.
+    and were originally obtained from NIST'''
+
     density = [0.99707, 1.0015, 1.0184, 1.0379, 1.0719, 1.1010, 1.1142]
     pressure = [0, 10, 50, 100, 200, 300, 350]
     ps = []
@@ -345,7 +330,8 @@ def err_calcs():
     for i in range(len(ps)):
         rho.append((saxs1.pp - ps[i]) * (2.818 * 10 ** -13))
 
-    # Function written by RM: Modified from original
+    '''Function written by RM: Modified from original'''
+
     I = saxs1.I_of_q_variable_contrast(saxs1.c, saxs1.mw, saxs1.buf_model_q, rho)
     err_data.plot_S2(saxs1.buf_model_q, I[0], I[6],
                      plotlabel1='0 MPa',
@@ -356,8 +342,9 @@ def err_calcs():
 
     rho, Rg_error_contrast, sig2_Rg_out = err_data.calc_errRg_contrast()
 
-    # # A plot of the simulated Rg error WITHOUT a model
-    # # commented out unless needed
+     '''A plot of the simulated Rg error WITHOUT a model
+     commented out unless needed'''
+
     # err_data.plot_S1(rho, [x * 100 for x in Rg_error_contrast],
     #                  plotlabel='Simulated Error',
     #                  savelabel='Sim_err_Rg_func_of_Contrast',
@@ -376,12 +363,14 @@ def err_calcs():
     CytC_data = np.loadtxt("rgErr_Pressure_CytC.txt",
                            dtype={'names': ('Pressure', 'Rg', 'RgErr', 'RgErrRel', 'RgErrRelPercent'),
                                   'formats': (np.float, np.float, np.float, np.float, np.float)}, skiprows=2)
-    # This is VERY clunky
-    # The user needs to match the simulation pressures of
-    # 0,10,50,100,200,300,350
-    # If the input data frame has extra pressure data points, they must be removed.
-    # In this case, the expt data does NOT include a 50 MPa point, so it was 'popped' off
-    # There should be a more automated way to do this added in.
+
+    '''This is VERY clunky
+    The user needs to match the simulation pressures of
+    0,10,50,100,200,300,350
+    If the input data frame has extra pressure data points, they must be removed.
+    In this case, the expt data does NOT include a 50 MPa point, so it was 'popped' off
+    There should be a more automated way to do this added in.'''
+
     rho.pop(2)
     popRho = rho
     Rg_error_contrast.pop(2)
@@ -431,8 +420,9 @@ def err_calcs():
         scatter = FigureCanvasTkAgg(fig,top)
         scatter.get_tk_widget().pack()
 
-    # generate pressure list for input
-    # and label for the analytical model plot
+    '''generate pressure list for input
+    and label for the analytical model plot'''
+
     plist = np.array([350,300,200,100,10,0])
     constantLabel="{:.2e}".format(c[0])
     plot_S3(popRho, plist, [x * 100 for x in popRgErr], exptData,
