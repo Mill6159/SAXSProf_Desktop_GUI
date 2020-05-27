@@ -148,6 +148,7 @@ class err_Calcs:
                     sig_Rg = np.abs(
                         Rg * np.sqrt(sig2_slope) / (2 * slope))  # converts the sigma^2 for the slope to the sigma of Rg
 
+
                 # err_Rg = np.sqrt(-3*err_slope)
                 # print c,Rg,sig_Rg/Rg,Rg*saxs1.buf_model_q[imax]
 
@@ -155,6 +156,13 @@ class err_Calcs:
                     errRg.append(sig_Rg / Rg)
                     sig2_Rg_out.append(sig_Rg)
                 print('Rg relative error as calculated as a function of contrast (i.e pressure) via the calc_errRg_contrast() function')
+
+
+                # Transform sig_Rg from logNormal to normal
+                log_sig_Rg_Avg = np.average(sig_Rg)
+                print('The average of the transformed error: ',log_sig_Rg_Avg)
+
+
                 ### RM 05.20.2020
                 ### Is I(q) normally distributed? ###
                 from scipy import stats

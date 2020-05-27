@@ -45,8 +45,8 @@ Energy.set(14.14)
 time.set(0.50)
 flux.set(3.8e12)
 
-# End General GUI framework
-# Some buttons for the GUI will be below
+'''End General GUI framework
+Some buttons for the GUI will be below'''
 
 def sim_params(energy=14.14, P=3.8e12, snaps=1, a=150.47,
                d=0.15, window_type='mica', sensor_thickness=0.032, t=0.4450):
@@ -113,16 +113,12 @@ def plot_S1(X, Y, plotlabel='', savelabel='', xlabel='', ylabel=''):
         plt.savefig(savelabel + ".png", format='png',
                     bbox_inches='tight')
 
-# Basic SAXSProf simulation:
-# Returns and SAXS profile based off simulation parameters
-# Buffer, window, and vacuum profiles were collected previously
-# SAXS profile is based off of lysozyme
-# Where a FoxS input is used
+'''Basic SAXSProf simulation:
+Returns and SAXS profile based off simulation parameters
+Buffer, window, and vacuum profiles were collected previously
+SAXS profile is based off of lysozyme
+Where a FoxS input is used'''
 def gen_simulation():
-    c = 5.0 # concentration (mg.ml)
-    t = time.get() # Exposure time (seconds)
-    mw1 = 14.3 # Molecular Weight (kDa)
-
     #############################################################
     # Initial User Inputs
     #
@@ -142,16 +138,16 @@ def gen_simulation():
 
     # buffer with empty cell subtracted
     buffer_model = "/S_A_nov07_028_lysbufnorm_flat.dat"
-    # buffer_exposure = t  # exposure used for buffer model
-    # buffer_flux = P  # flux used for buffer model
+    buffer_exposure = t  # exposure used for buffer model
+    buffer_flux = P  # flux used for buffer model
 
     vac_model = "/A_nov07_072_lysbufnorm.dat"
-    # vac_exposure = t
-    # vac_flux = P
+    vac_exposure = t
+    vac_flux = P
 
     win_model = "/S_A_nov07_026_lysbufnorm.dat"
-    # win_exposure = t
-    # win_flux = P
+    win_exposure = t
+    win_flux = P
 
     #############################################################################
     #############################################################################
@@ -168,6 +164,7 @@ def gen_simulation():
     saxs1.det_eff = saxs1.QE(saxs1.lam,saxs1.sensor_thickness)
 
     #  determines the q-space range based on detector and mask. Default_q starts at q = 0, mask_q starts at q_min
+
     saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")
 
     # buffer, vacuum, window, and model profiles read in and interpolated onto default_q
@@ -183,73 +180,69 @@ def gen_simulation():
     #############################################################################
 
     saxs1.readStandardProfiles("M_Nov07_")
+
+    #############################################################################
+    #############################################################################
+
+    # saxs1.writeStandardProfiles("Nov07_")
+
+    #############################################################################
+    #############################################################################
+
     saxs1.v = 0.72  # protein specific volume
     saxs1.pp = 322e21 / saxs1.v  # (from dry mass/specific volume)
     saxs1.ps = 334.6e21  # electrons/cm3 for buffer (water)
     saxs1.p = (saxs1.pp - saxs1.ps) * 2.818e-13  # contrast
+
+    print('Contrast, Protein e Density',saxs1.p,saxs1.pp)
+
     saxs1.d = 0.15  # microfluidic mixing chip
     # saxs1.P = 1.6e11   # 8 um x 13 um CRL beam
     saxs1.P = 3.8e12  # CHESS-U Flux, Ph/s
 
-    # saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
-    # saxs1.set_window(window_type)
-    # saxs1.sensor_thickness = sensor_thickness
-    # saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
-    # saxs1.readStandardProfiles("M_Nov07_")
+    # saxs1.P = 3.8e11   # Oct 2017 30 um x 50 um CRL beam
+
+    # don't forget to set the beam dimensions (cm)
+
+    # h_beam = 0.005
+    # v_beam = 0.003
+
+    # h_beam = 0.0008
+    # v_beam = 0.0013
+
+    #############################################################################
     #############################################################################
 
-    saxs1.d = 0.15  # microfluidic mixing chip
-    # generate buffer profile. simulate_buf uses trimmed mask_q for q-values
-    energy,P,snaps,a,d,window_type,sensor_thickness,t = sim_params(energy=np.float(Energy.get()),
-                                                                   P=np.float(flux.get()),
-                                                                   t=np.float(time.get()))
-    saxs1.set_energy(energy)  # this energy is energy for simulated data
-    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")  # energy dependent
+    saxs1.energy, saxs1.P, saxs1.snaps, saxs1.a, saxs1.d, saxs1.window_type, saxs1.sensor_thickness, saxs1.t = sim_params(energy=np.float(Energy.get()),
+                                                                          P=np.float(flux.get()),
+                                                                          t=np.float(time.get()))
+    saxs1.set_energy(14.14)  # this energy is energy for simulated data
+
+    # re-calculate visible q-range and "pixels per bin" array (NofPixels)
+    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")
 
     # need to re-load model so we can re-interpolate onto new default_q
-    # sample_model_1 = "6lyz.pdb.dat"
     saxs1.load_I(sample_model_1,interpolate=True,q_array=saxs1.default_q)
-    # saxs1.simulate_buf(subtracted=True)
-    # # calculate synthetic curve on buf_model profile generated by simulate_buf
-    # I_no_noise = saxs1.I_of_q(c, saxs1.mw, saxs1.buf_model_q)
 
-    # # calculate noisy profile on mask_q points that fall within both buf's q range and the specified default_q range (mask_q_short)
-    # I_w_noise = saxs1.t * saxs1.pixel_size ** 2 * saxs1.with_noise(saxs1.t, saxs1.buf_model_q, I_no_noise)
+    # generate buffer profile. simulate_buf uses trimmed mask_q for q-values
+    try:
+        (synth_buf,MT_cell,Vac_cell,win_cell,buf_cell) = saxs1.simulate_buf(subtracted=True)
+    except ValueError as e:
+        print(e.args)
+        raise e
 
-    # # calculated smooth I on default_q (goes all the way to q = 0)
-    # I_no_noise = saxs1.t * saxs1.pixel_size ** 2 * I_no_noise
-
-    # I = saxs1.I_of_q(saxs1.c, saxs1.mw, saxs1.buf_model_q)
-
-    # Reassign variables to ensure things are assigned properly
-    saxs1.mw = np.array(MWt.get())
-    saxs1.c = np.array(conc.get())
-    saxs1.energy=energy
-    saxs1.P = P
-    saxs1.snaps = snaps
-    saxs1.a=a
-    saxs1.d=d
-    saxs1.sensor_thickness=sensor_thickness
-    #############################################################################
     # calculate synthetic curve on buf_model profile generated by simulate_buf
     I_no_noise = saxs1.I_of_q(saxs1.c,saxs1.mw,saxs1.buf_model_q)
 
     # calculate noisy profile on mask_q points that fall within both buf's q range and the specified default_q range (mask_q_short)
     I_w_noise = saxs1.t * saxs1.pixel_size ** 2 * saxs1.with_noise(saxs1.t,saxs1.buf_model_q,I_no_noise)
 
-    ################################################################################################
-    # Not currently used
     # calculated smooth I on default_q (goes all the way to q = 0)
     I_no_noise = saxs1.t * saxs1.pixel_size ** 2 * I_no_noise
 
     # calculated smooth I and sigma on same q points as I_w_noise
     I_no_noise_calc = saxs1.Icalc * saxs1.t * saxs1.pixel_size ** 2  # in register with buffer
     I_sigma = saxs1.sigma
-    ################################################################################################
-
-    #############################################################################
-    #############################################################################
-    # plot_S1(saxs1.buf_model_q, I, plotlabel='Ambient Pressure', savelabel = 'Intensity_LinLin', xlabel = '$q (\\AA^{-1})$', ylabel = 'I(q)')
     plotlabel = 'Simulated SAXS Curve'
     savelabel = 'Simulated_SAXS_Curve'
     plt.rc("axes", linewidth=2)
@@ -386,12 +379,12 @@ def err_calcs():
     # Reassign variables to ensure things are assigned properly
     saxs1.mw = np.array(MWt.get())
     saxs1.c = np.array(conc.get())
-    saxs1.energy=energy
+    saxs1.energy = energy
     saxs1.P = P
     saxs1.snaps = snaps
-    saxs1.a=a
-    saxs1.d=d
-    saxs1.sensor_thickness=sensor_thickness
+    saxs1.a = a
+    saxs1.d = d
+    saxs1.sensor_thickness= sensor_thickness
 
     err_data = err_Calcs(saxs1=saxs1)
     concentration, rgError, log_sig = err_data.calc_errRg_conc()
