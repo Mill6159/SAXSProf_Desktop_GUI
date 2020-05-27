@@ -177,7 +177,6 @@ class err_Calcs:
         RM! Currently uses default settings for calc_errRg_contrast() function. I will need to add functionality to allow the user
         to define those inputs as they will severely impact the model
         """
-        model = []
         rho, Rg_error_contrast, sig2_Rg_out = self.calc_errRg_contrast()
 
         def cont_model(rho, constant):

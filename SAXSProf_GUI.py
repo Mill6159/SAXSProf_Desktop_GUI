@@ -119,29 +119,97 @@ def plot_S1(X, Y, plotlabel='', savelabel='', xlabel='', ylabel=''):
 # SAXS profile is based off of lysozyme
 # Where a FoxS input is used
 def gen_simulation():
-    energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
-                                                                          P=np.float(flux.get()),
-                                                                          t=np.float(time.get()))
+    c = 5.0 # concentration (mg.ml)
+    t = time.get() # Exposure time (seconds)
+    mw1 = 14.3 # Molecular Weight (kDa)
 
-    # c = 5.0 # concentration (mg.ml)
-    c = np.array(conc.get())
-    # t = time.get() # Exposure time (seconds)
-    # mw1 = 14.3 # Molecular Weight (kDa)
-    mw1 = np.array(MWt.get())
-    saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
+    #############################################################
+    # Initial User Inputs
+    #
+    #############################################################
+    energy = 9.962  # energy (keV)
+    P = 8.4e11  # flux (photons/s)
+    t = 1.0  # exposure time for individual snapshots (s)
+    snaps = 1  # number of snapshots averaged
+    a = 150.47  # sample-to-detector distance (cm)
+    d = 0.15  # sample cell path length (cm)
+
+    window_type = "mica"  # type of window material on sample cell
+
+    sensor_thickness = 0.032  # Pilatus sensor thickness
+
+    # These files below are only used when generating the "standard profiles."
+
+    # buffer with empty cell subtracted
+    buffer_model = "/S_A_nov07_028_lysbufnorm_flat.dat"
+    # buffer_exposure = t  # exposure used for buffer model
+    # buffer_flux = P  # flux used for buffer model
+
+    vac_model = "/A_nov07_072_lysbufnorm.dat"
+    # vac_exposure = t
+    # vac_flux = P
+
+    win_model = "/S_A_nov07_026_lysbufnorm.dat"
+    # win_exposure = t
+    # win_flux = P
+
+    #############################################################################
+    #############################################################################
+
+    sample_model_1 = "6lyz.pdb.dat"
+
+    c = 4.0  # concentration (mg.ml)
+    t = 10  # Exposure time (seconds)
+    mw1 = 14.3  # Molecular Weight (kDa)
+
+    saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t * snaps,c=c,shape='FoxS',detector='100K')
     saxs1.set_window(window_type)
     saxs1.sensor_thickness = sensor_thickness
-    saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
+    saxs1.det_eff = saxs1.QE(saxs1.lam,saxs1.sensor_thickness)
+
+    #  determines the q-space range based on detector and mask. Default_q starts at q = 0, mask_q starts at q_min
+    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")
+
+    # buffer, vacuum, window, and model profiles read in and interpolated onto default_q
+    # saxs1.buf_q are the q points of default_q that fall within buf's q range
+    #
+    # saxs1.load_buf(buffer_model, t=buffer_exposure, P=buffer_flux, interpolate=True, q_array = saxs1.default_q)
+    # saxs1.load_vac(vac_model, t=vac_exposure, P=vac_flux, interpolate=True, q_array = saxs1.default_q)
+    # saxs1.load_win(win_model, t=win_exposure, P=win_flux, interpolate=True, q_array = saxs1.default_q)
+    saxs1.load_I(sample_model_1,interpolate=True,q_array=saxs1.default_q)
+
+    #############################################################################
+    # Here we load in
+    #############################################################################
+
     saxs1.readStandardProfiles("M_Nov07_")
+    saxs1.v = 0.72  # protein specific volume
+    saxs1.pp = 322e21 / saxs1.v  # (from dry mass/specific volume)
+    saxs1.ps = 334.6e21  # electrons/cm3 for buffer (water)
+    saxs1.p = (saxs1.pp - saxs1.ps) * 2.818e-13  # contrast
+    saxs1.d = 0.15  # microfluidic mixing chip
+    # saxs1.P = 1.6e11   # 8 um x 13 um CRL beam
+    saxs1.P = 3.8e12  # CHESS-U Flux, Ph/s
+
+    # saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
+    # saxs1.set_window(window_type)
+    # saxs1.sensor_thickness = sensor_thickness
+    # saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
+    # saxs1.readStandardProfiles("M_Nov07_")
     #############################################################################
 
     saxs1.d = 0.15  # microfluidic mixing chip
-    saxs1.create_Mask(98, 3, 45, 14, wedge=360.0, type="rectangle")
+    # generate buffer profile. simulate_buf uses trimmed mask_q for q-values
+    energy,P,snaps,a,d,window_type,sensor_thickness,t = sim_params(energy=np.float(Energy.get()),
+                                                                   P=np.float(flux.get()),
+                                                                   t=np.float(time.get()))
+    saxs1.set_energy(energy)  # this energy is energy for simulated data
+    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")  # energy dependent
 
     # need to re-load model so we can re-interpolate onto new default_q
-    sample_model_1 = "6lyz.pdb.dat"
-    saxs1.load_I(sample_model_1, interpolate=True, q_array=saxs1.default_q)
-    saxs1.simulate_buf(subtracted=True)
+    # sample_model_1 = "6lyz.pdb.dat"
+    saxs1.load_I(sample_model_1,interpolate=True,q_array=saxs1.default_q)
+    # saxs1.simulate_buf(subtracted=True)
     # # calculate synthetic curve on buf_model profile generated by simulate_buf
     # I_no_noise = saxs1.I_of_q(c, saxs1.mw, saxs1.buf_model_q)
 
@@ -151,7 +219,36 @@ def gen_simulation():
     # # calculated smooth I on default_q (goes all the way to q = 0)
     # I_no_noise = saxs1.t * saxs1.pixel_size ** 2 * I_no_noise
 
-    I = saxs1.I_of_q(saxs1.c, saxs1.mw, saxs1.buf_model_q)
+    # I = saxs1.I_of_q(saxs1.c, saxs1.mw, saxs1.buf_model_q)
+
+    # Reassign variables to ensure things are assigned properly
+    saxs1.mw = np.array(MWt.get())
+    saxs1.c = np.array(conc.get())
+    saxs1.energy=energy
+    saxs1.P = P
+    saxs1.snaps = snaps
+    saxs1.a=a
+    saxs1.d=d
+    saxs1.sensor_thickness=sensor_thickness
+    #############################################################################
+    # calculate synthetic curve on buf_model profile generated by simulate_buf
+    I_no_noise = saxs1.I_of_q(saxs1.c,saxs1.mw,saxs1.buf_model_q)
+
+    # calculate noisy profile on mask_q points that fall within both buf's q range and the specified default_q range (mask_q_short)
+    I_w_noise = saxs1.t * saxs1.pixel_size ** 2 * saxs1.with_noise(saxs1.t,saxs1.buf_model_q,I_no_noise)
+
+    ################################################################################################
+    # Not currently used
+    # calculated smooth I on default_q (goes all the way to q = 0)
+    I_no_noise = saxs1.t * saxs1.pixel_size ** 2 * I_no_noise
+
+    # calculated smooth I and sigma on same q points as I_w_noise
+    I_no_noise_calc = saxs1.Icalc * saxs1.t * saxs1.pixel_size ** 2  # in register with buffer
+    I_sigma = saxs1.sigma
+    ################################################################################################
+
+    #############################################################################
+    #############################################################################
     # plot_S1(saxs1.buf_model_q, I, plotlabel='Ambient Pressure', savelabel = 'Intensity_LinLin', xlabel = '$q (\\AA^{-1})$', ylabel = 'I(q)')
     plotlabel = 'Simulated SAXS Curve'
     savelabel = 'Simulated_SAXS_Curve'
@@ -168,7 +265,7 @@ def gen_simulation():
         tick.label1.set_fontsize(8)
     ax1.set_xlabel('$q (\\AA^{-1})$', size=8)
     ax1.set_ylabel('I(q)', size=8)
-    ax1.plot(saxs1.buf_model_q, I, label=plotlabel, markersize=2, color='#009EBD')
+    ax1.semilogy(saxs1.buf_model_q, I_w_noise, label=plotlabel, markersize=2, color='#009EBD')
     ax1.legend(numpoints=1, fontsize=4, loc="best")
     fig.savefig(savelabel + ".png", format='png',
                 bbox_inches='tight')
@@ -179,58 +276,147 @@ def gen_simulation():
     return energy, saxs1
 
 
+
 # Associated Button
 Generate = Button(root, text="Generate SAXS Curve", width=30, height=2, bg='lightblue', command=gen_simulation).place(
     x=320, y=470)
 
 
 def err_calcs():
+
+    c = 5.0 # concentration (mg.ml)
+    t = time.get() # Exposure time (seconds)
+    mw1 = 14.3 # Molecular Weight (kDa)
+
+    #############################################################
+    # Initial User Inputs
+    #
+    #############################################################
+    energy = 9.962  # energy (keV)
+    P = 8.4e11  # flux (photons/s)
+    t = 1.0  # exposure time for individual snapshots (s)
+    snaps = 1  # number of snapshots averaged
+    a = 150.47  # sample-to-detector distance (cm)
+    d = 0.15  # sample cell path length (cm)
+
+    window_type = "mica"  # type of window material on sample cell
+
+    sensor_thickness = 0.032  # Pilatus sensor thickness
+
+    # These files below are only used when generating the "standard profiles."
+
+    # buffer with empty cell subtracted
+    buffer_model = "/S_A_nov07_028_lysbufnorm_flat.dat"
+    buffer_exposure = t  # exposure used for buffer model
+    buffer_flux = P  # flux used for buffer model
+
+    vac_model = "/A_nov07_072_lysbufnorm.dat"
+    vac_exposure = t
+    vac_flux = P
+
+    win_model = "/S_A_nov07_026_lysbufnorm.dat"
+    win_exposure = t
+    win_flux = P
+
+    #############################################################################
+    #############################################################################
+
+    sample_model_1 = "6lyz.pdb.dat"
+
+    # c = 4.0  # concentration (mg.ml)
+    # t = 10  # Exposure time (seconds)
+    # mw1 = 14.3  # Molecular Weight (kDa)
+
+    saxs1 = SAXS(mw=mw1,a=a,d=d,energy=energy,P=P,t=t,total_t=t * snaps,c=c,shape='FoxS',detector='100K')
+    saxs1.set_window(window_type)
+    saxs1.sensor_thickness = sensor_thickness
+    saxs1.det_eff = saxs1.QE(saxs1.lam,saxs1.sensor_thickness)
+
+    #  determines the q-space range based on detector and mask. Default_q starts at q = 0, mask_q starts at q_min
+
+    saxs1.create_Mask(98,3,45,14,wedge=360.0,type="rectangle")
+
+    # buffer, vacuum, window, and model profiles read in and interpolated onto default_q
+    # saxs1.buf_q are the q points of default_q that fall within buf's q range
+    #
+    # saxs1.load_buf(buffer_model, t=buffer_exposure, P=buffer_flux, interpolate=True, q_array = saxs1.default_q)
+    # saxs1.load_vac(vac_model, t=vac_exposure, P=vac_flux, interpolate=True, q_array = saxs1.default_q)
+    # saxs1.load_win(win_model, t=win_exposure, P=win_flux, interpolate=True, q_array = saxs1.default_q)
+    saxs1.load_I(sample_model_1,interpolate=True,q_array=saxs1.default_q)
+
+    #############################################################################
+    # Here we load in
+    #############################################################################
+
+    saxs1.readStandardProfiles("M_Nov07_")
+
+    saxs1.v = 0.72  # protein specific volume
+    saxs1.pp = 322e21 / saxs1.v  # (from dry mass/specific volume)
+    saxs1.ps = 334.6e21  # electrons/cm3 for buffer (water)
+    saxs1.p = (saxs1.pp - saxs1.ps) * 2.818e-13  # contrast
+
+    print('Contrast, Protein e Density',saxs1.p,saxs1.pp)
+
+    saxs1.d = 0.15  # microfluidic mixing chip
+    # saxs1.P = 1.6e11   # 8 um x 13 um CRL beam
+    # saxs1.P = 3.8e12  # CHESS-U Flux, Ph/s
+
+
+
+    # saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
+    # saxs1.set_window(window_type)
+    # saxs1.sensor_thickness = sensor_thickness
+    # saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
+    # saxs1.readStandardProfiles("M_Nov07_")
+    # #############################################################################
+    #
+    # saxs1.d = 0.15  # microfluidic mixing chip
+
     energy, P, snaps, a, d, window_type, sensor_thickness, t = sim_params(energy=np.float(Energy.get()),
                                                                           P=np.float(flux.get()),
                                                                           t=np.float(time.get()))
-    # c = 5.0 # concentration (mg.ml)
-    c = np.array(conc.get())
-    # t = time.get() # Exposure time (seconds)
-    # mw1 = 14.3 # Molecular Weight (kDa)
-    mw1 = np.array(MWt.get())
-    saxs1 = SAXS(mw=mw1, a=a, d=d, energy=energy, P=P, t=t, total_t=t * snaps, c=c, shape='FoxS', detector='100K')
-    saxs1.set_window(window_type)
-    saxs1.sensor_thickness = sensor_thickness
-    saxs1.det_eff = saxs1.QE(saxs1.lam, saxs1.sensor_thickness)
-    saxs1.readStandardProfiles("M_Nov07_")
-    #############################################################################
-
-    saxs1.d = 0.15  # microfluidic mixing chip
-    saxs1.create_Mask(98, 3, 45, 14, wedge=360.0, type="rectangle")
+    saxs1.set_energy(energy)  # this energy is energy for simulated data
+    saxs1.create_Mask(98, 3, 45, 14, wedge=360.0, type="rectangle") # energy dependent
 
     # need to re-load model so we can re-interpolate onto new default_q
-    sample_model_1 = "6lyz.pdb.dat"
+    # sample_model_1 = "6lyz.pdb.dat"
     saxs1.load_I(sample_model_1, interpolate=True, q_array=saxs1.default_q)
     saxs1.simulate_buf(subtracted=True)
 
+    # Reassign variables to ensure things are assigned properly
+    saxs1.mw = np.array(MWt.get())
+    saxs1.c = np.array(conc.get())
+    saxs1.energy=energy
+    saxs1.P = P
+    saxs1.snaps = snaps
+    saxs1.a=a
+    saxs1.d=d
+    saxs1.sensor_thickness=sensor_thickness
+
     err_data = err_Calcs(saxs1=saxs1)
     concentration, rgError, log_sig = err_data.calc_errRg_conc()
-    err_data.plot_S1(concentration, [x * 100 for x in rgError],
-                     plotlabel='Simulated Error - Analytical model',
-                     savelabel='Simulated_Error_Func_Conc',
-                     xlabel='Conc. ($\\frac{mg}{ml}$)',
-                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
+
+    # err_data.plot_S1(concentration, [x * 100 for x in rgError],
+    #                  plotlabel='Simulated Error - Analytical model',
+    #                  savelabel='Simulated_Error_Func_Conc',
+    #                  xlabel='Conc. ($\\frac{mg}{ml}$)',
+    #                  ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
     # Quick calculate model from initial points (slope) of the simulated data
     inv_err = 1 / np.array(rgError)
     final_slope = (inv_err[3] - inv_err[2]) / (concentration[3] - concentration[2])
 
     # Technically this final_slope term should be empirically model as it may not be known apriori
 
-    err_data.plot_S1(concentration, 1.0 / (final_slope * np.array(concentration)),
-                     plotlabel='($\\frac{1}{concentration}$) Model',
-                     savelabel='Inv_c_Model',
-                     xlabel='concentration. ($\\frac{mg}{ml}$)',
-                     ylabel='Model')
+    # err_data.plot_S1(concentration, 1.0 / (final_slope * np.array(concentration)),
+    #                  plotlabel='($\\frac{1}{concentration}$) Model',
+    #                  savelabel='Inv_c_Model',
+    #                  xlabel='concentration. ($\\frac{mg}{ml}$)',
+    #                  ylabel='Model')
 
     err_data.plot_S2(concentration, rgError, 1.0 / (final_slope * np.array(concentration)),
                      plotlabel1='Simulated Error - Analytical model',
                      plotlabel2='($\\frac{1}{final \ slope \cdot conc}$)',
-                     savelabel='Analytical_and_Inv_c_Rg_ErrorModel',
+                     savelabel='Sim_ErrorRg_vs_Conc_w_Model',
                      xlabel='Conc. ($\\frac{mg}{ml}$)',
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$)')
 
@@ -247,6 +433,7 @@ def err_calcs():
     for i in range(len(ps)):
         rho.append((saxs1.pp - ps[i]) * (2.818 * 10 ** -13))
 
+    # Function written by RM: Modified from original
     I = saxs1.I_of_q_variable_contrast(saxs1.c, saxs1.mw, saxs1.buf_model_q, rho)
     err_data.plot_S2(saxs1.buf_model_q, I[0], I[6],
                      plotlabel1='0 MPa',
@@ -257,28 +444,39 @@ def err_calcs():
 
     rho, Rg_error_contrast, sig2_Rg_out = err_data.calc_errRg_contrast()
 
-    err_data.plot_S1(rho, [x * 100 for x in Rg_error_contrast],
-                     plotlabel='Simulated Error',
-                     savelabel='Sim_err_Rg_func_of_Contrast',
-                     xlabel='$\Delta \\rho (cm^{-2})$',
-                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
+    # # A plot of the simulated Rg error WITHOUT a model
+    # # commented out unless needed
+    # err_data.plot_S1(rho, [x * 100 for x in Rg_error_contrast],
+    #                  plotlabel='Simulated Error',
+    #                  savelabel='Sim_err_Rg_func_of_Contrast',
+    #                  xlabel='$\Delta \\rho (cm^{-2})$',
+    #                  ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
     model, c, Rg_error_contrast = err_data.rgErr_contrast_model()
 
     err_data.plot_S2(rho, [x * 100 for x in Rg_error_contrast], [x * 100 for x in model],
                      plotlabel1='Simulated Error - Analytical model',
                      plotlabel2='$\\frac{%s}{\\rho}$' % "{:.2e}".format(c[0]),
-                     savelabel='Sim_err_Rg_func_of_Contrast_w_InvRho',
+                     savelabel='Sim_ErrorRg_vs_Contrast_w_Model',
                      xlabel='$\Delta \\rho (cm^{-2})$',
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
     CytC_data = np.loadtxt("rgErr_Pressure_CytC.txt",
                            dtype={'names': ('Pressure', 'Rg', 'RgErr', 'RgErrRel', 'RgErrRelPercent'),
                                   'formats': (np.float, np.float, np.float, np.float, np.float)}, skiprows=2)
+    # This is VERY clunky
+    # The user needs to match the simulation pressures of
+    # 0,10,50,100,200,300,350
+    # If the input data frame has extra pressure data points, they must be removed.
+    # In this case, the expt data does NOT include a 50 MPa point, so it was 'popped' off
+    # There should be a more automated way to do this added in.
     rho.pop(2)
     popRho = rho
     Rg_error_contrast.pop(2)
+    # modelList=list(model)
+    # modelList.pop(2)
     popRgErr = Rg_error_contrast
+    # popRgErr = modelList
     exptData = np.ndarray.tolist(CytC_data['RgErrRelPercent'])
     exptData.pop(2)
 
@@ -321,10 +519,12 @@ def err_calcs():
         scatter = FigureCanvasTkAgg(fig,top)
         scatter.get_tk_widget().pack()
 
+    # generate pressure list for input
+    # and label for the analytical model plot
     plist = np.array([350,300,200,100,10,0])
-
+    constantLabel="{:.2e}".format(c[0])
     plot_S3(popRho, plist, [x * 100 for x in popRgErr], exptData,
-                     plotlabel1='Simulated Error - Analytical model',
+                     plotlabel1='Analytical model: $\\frac{{%s}}{\\rho}$' % constantLabel,
                      plotlabel2='Experimental Cytochrome C Data',
                      savelabel='SimandExpt_err_Rg_func_of_Contrast',
                      xlabel='$\Delta \\rho (cm^{-2})$',
