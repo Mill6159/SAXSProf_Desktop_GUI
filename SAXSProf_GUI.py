@@ -354,6 +354,8 @@ def err_calcs():
 
     model, c, Rg_error_contrast = err_data.rgErr_contrast_model()
 
+    plist = np.array([350, 300, 200, 100, 10, 0])
+
     err_data.plot_S2(rho, [x * 100 for x in Rg_error_contrast], [x * 100 for x in model],
                      plotlabel1='Simulated Error - Analytical model',
                      plotlabel2='$\\frac{%s}{\\rho}$' % "{:.2e}".format(c[0]),
@@ -387,7 +389,7 @@ def err_calcs():
         plt.rc("lines",markeredgewidth=2)
         plt.rc('font',**{"sans-serif": ["Helvetica"]})
         top = Toplevel(root)
-        fig = plt.Figure(figsize=(8,8),dpi=500)
+        fig = plt.Figure(figsize=(8,12),dpi=500)
         DPI = fig.get_dpi()
         fig.set_size_inches(2400.0 / float(DPI),1220.0 / float(DPI))
         ax1 = fig.add_subplot(111)
@@ -424,7 +426,6 @@ def err_calcs():
     '''generate pressure list for input
     and label for the analytical model plot'''
 
-    plist = np.array([350,300,200,100,10,0])
     constantLabel="{:.2e}".format(c[0])
     plot_S3(popRho, plist, [x * 100 for x in popRgErr], exptData,
                      plotlabel1='Analytical model: $\\frac{{%s}}{\\rho}$' % constantLabel,
@@ -434,6 +435,16 @@ def err_calcs():
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$',
                      xlabel2='Pressure (MPa)')
 
+
+    '''Generate a publication quality worthy plot of the error as a function of pressure
+    '''
+
+    err_data.plot_S2(plist, [x * 100 for x in popRgErr], exptData,
+                     plotlabel1='Analytical model: $\\frac{{%s}}{\\rho}$' % constantLabel,
+                     plotlabel2='Experimental Cytochrome C Data',
+                     savelabel='SimandExpt_err_Rg_func_of_Contrast_QualityPlot',
+                     xlabel='Pressure (MPa)',
+                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
 '''Associated Button for error calculations'''
 Error_Calcs = Button(root, text="Error Calculations", width=30, height=2, bg='lightblue', command=err_calcs).place(
