@@ -471,6 +471,34 @@ def err_calcs():
         plt.savefig(savelabel + ".png", format='png',
                     bbox_inches='tight',dpi=400)
 
+    def plot_S5(X, Y1, Y2,plotlabel1 = '', plotlabel2 = '', savelabel = '', xlabel = '', ylabel = ''):
+        plt.rc("axes", linewidth=2)
+        plt.rc("lines", markeredgewidth=2)
+        plt.rc('font', **{"sans-serif":["Helvetica"]})
+        fig = plt.figure(figsize=(8, 8))
+        ax1 = fig.add_subplot(1, 1, 1)
+        for tick in ax1.xaxis.get_major_ticks():
+            tick.label1.set_fontsize(20)
+            tick.label1.set_fontname('Helvetica')
+        for tick in ax1.yaxis.get_major_ticks():
+            tick.label1.set_fontsize(20)
+        plt.ylabel(ylabel, size=22)
+        plt.xlabel(xlabel, size=22)
+        plt.plot(X,Y1,'-',
+                 label=plotlabel1,
+                 linewidth=4,
+                 color='#DA3205')
+        plt.plot(X,Y2,
+                 linestyle='None',
+                 marker="o",
+                 markersize=6,
+                 color='k',
+                 label=plotlabel2)
+        plt.legend(numpoints=1, fontsize=18, loc="best")
+        fig.tight_layout()
+        plt.savefig(savelabel + ".png", format='png',
+                    bbox_inches='tight',dpi=400)
+
 
     plist2 = np.array([0,10,100,200,300,350])
 
@@ -480,6 +508,11 @@ def err_calcs():
             xlabel='Pressure (MPa)',
             ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
+    plot_S5(plist2,  [x * 100 for x in modelList], exptData,
+            plotlabel1='Model: $\\frac{{%s}}{\\rho}$' % constantLabel,plotlabel2='Expt Cytochrome C Data',
+            savelabel='RgError_Analytical_and_Expt2',
+            xlabel='Pressure (MPa)',
+            ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
 
     err_data.plot_S2(plist2, [x * 100 for x in popRgErr], exptData,
