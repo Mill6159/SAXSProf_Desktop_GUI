@@ -342,7 +342,7 @@ def err_calcs():
                      xlabel='q($\\AA^{-1}$)',
                      ylabel='I(q)')
 
-    rho, Rg_error_contrast, sig2_Rg_out = err_data.calc_errRg_contrast()
+    rho, Rg_error_contrast2, sig2_Rg_out = err_data.calc_errRg_contrast()
 
     '''A plot of the simulated Rg error WITHOUT a model commented out unless needed'''
 
@@ -376,10 +376,10 @@ def err_calcs():
 
     rho.pop(2)
     popRho = rho
-    Rg_error_contrast.pop(2)
-    # modelList=list(model)
-    # modelList.pop(2)
-    popRgErr = Rg_error_contrast
+    Rg_error_contrast2.pop(2)
+    modelList=list(model)
+    modelList.pop(2)
+    popRgErr = Rg_error_contrast2
     # popRgErr = modelList
     exptData = np.ndarray.tolist(CytC_data['RgErrRelPercent'])
     exptData.pop(2)
@@ -439,10 +439,53 @@ def err_calcs():
     '''Generate a publication quality worthy plot of the error as a function of pressure
     '''
 
-    err_data.plot_S2(plist, [x * 100 for x in popRgErr], exptData,
-                     plotlabel1='Analytical model: $\\frac{{%s}}{\\rho}$' % constantLabel,
+    def plot_S4(X, Y1, Y2, Y3, plotlabel1 = '', plotlabel2 = '', plotlabel3='', savelabel = '', xlabel = '', ylabel = ''):
+        plt.rc("axes", linewidth=2)
+        plt.rc("lines", markeredgewidth=2)
+        plt.rc('font', **{"sans-serif":["Helvetica"]})
+        fig = plt.figure(figsize=(8, 8))
+        ax1 = fig.add_subplot(1, 1, 1)
+        for tick in ax1.xaxis.get_major_ticks():
+            tick.label1.set_fontsize(20)
+            tick.label1.set_fontname('Helvetica')
+        for tick in ax1.yaxis.get_major_ticks():
+            tick.label1.set_fontsize(20)
+        plt.ylabel(ylabel, size=22)
+        plt.xlabel(xlabel, size=22)
+        plt.plot(X,Y1,'-',
+                 label=plotlabel1,
+                 linewidth=4,
+                 color='#127E0D')
+        plt.plot(X,Y2,'-',
+                 linewidth=4,
+                 color='#DA3205',
+                 label=plotlabel2)
+        plt.plot(X,Y3,
+                 linestyle='None',
+                 marker="o",
+                 markersize=6,
+                 color='k',
+                 label=plotlabel3)
+        plt.legend(numpoints=1, fontsize=18, loc="best")
+        fig.tight_layout()
+        plt.savefig(savelabel + ".png", format='png',
+                    bbox_inches='tight',dpi=400)
+
+
+    plist2 = np.array([0,10,100,200,300,350])
+
+    plot_S4(plist2, [x * 100 for x in popRgErr], [x * 100 for x in modelList], exptData, plotlabel1='SAXSProf Result',
+            plotlabel2='Model SAXSProf Result: $\\frac{{%s}}{\\rho}$' % constantLabel,plotlabel3='Expt Cytochrome C Data',
+            savelabel='RgError_Analytical_and_Expt',
+            xlabel='Pressure (MPa)',
+            ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
+
+
+
+    err_data.plot_S2(plist2, [x * 100 for x in popRgErr], exptData,
+                     plotlabel1='Model: $\\frac{{%s}}{\\rho}$' % constantLabel,
                      plotlabel2='Experimental Cytochrome C Data',
-                     savelabel='SimandExpt_err_Rg_func_of_Contrast_QualityPlot',
+                     savelabel='ModelPlot_RgError',
                      xlabel='Pressure (MPa)',
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
