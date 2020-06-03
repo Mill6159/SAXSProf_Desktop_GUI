@@ -45,8 +45,8 @@ entry_box = Entry(root, textvariable=detector_type, width=25, bg='#2F8E08').plac
 conc.set(5)
 MWt.set(14)
 Energy.set(14.14)
-time.set(0.50)
-flux.set(3.8e12)
+time.set(1.50)
+flux.set(1.4e12)
 detector_type.set('100K')
 
 '''End General GUI framework
@@ -300,7 +300,8 @@ def err_calcs():
     # Quick calculate model from initial points (slope) of the simulated data
     inv_err = 1 / np.array(rgError)
     final_slope = (inv_err[3] - inv_err[2]) / (concentration[3] - concentration[2])
-
+    modelConc=1.0 / (final_slope * np.array(concentration))
+    rgErrConc = rgError
     # Technically this final_slope term should be empirically model as it may not be known apriori
 
     # err_data.plot_S1(concentration, 1.0 / (final_slope * np.array(concentration)),
@@ -514,6 +515,14 @@ def err_calcs():
             xlabel='Pressure (MPa)',
             ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}$) $\cdot 100$')
 
+
+    # print (len(model))
+    plot_S5(concentration, [x*100 for x in modelConc], [x*100 for x in rgErrConc],
+                     plotlabel2='Simulation Error',
+                     plotlabel1='Model',
+                     savelabel='Sim_ErrorRg_vs_Conc_w_Model2',
+                     xlabel='Conc. ($\\frac{mg}{ml}$)',
+                     ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}) \cdot 100$')
 
     err_data.plot_S2(plist2, [x * 100 for x in popRgErr], exptData,
                      plotlabel1='Model: $\\frac{{%s}}{\\rho}$' % constantLabel,
