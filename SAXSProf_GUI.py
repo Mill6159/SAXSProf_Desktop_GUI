@@ -302,6 +302,7 @@ def err_calcs():
     final_slope = (inv_err[3] - inv_err[2]) / (concentration[3] - concentration[2])
     modelConc=1.0 / (final_slope * np.array(concentration))
     rgErrConc = rgError
+    concConstant ="{:.3f}".format(1.0/final_slope)
     # Technically this final_slope term should be empirically model as it may not be known apriori
 
     # err_data.plot_S1(concentration, 1.0 / (final_slope * np.array(concentration)),
@@ -519,7 +520,7 @@ def err_calcs():
     # print (len(model))
     plot_S5(concentration, [x*100 for x in modelConc], [x*100 for x in rgErrConc],
                      plotlabel2='Simulation Error',
-                     plotlabel1='Model',
+                     plotlabel1='Model: $\\frac{{%s}}{conc.(\\frac{mg}{ml})}$' % concConstant,
                      savelabel='Sim_ErrorRg_vs_Conc_w_Model2',
                      xlabel='Conc. ($\\frac{mg}{ml}$)',
                      ylabel='($\\frac{\sigma_{R_{g}}}{R_{g}}) \cdot 100$')
